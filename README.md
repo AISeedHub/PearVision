@@ -1,66 +1,66 @@
-# AISEED 파이썬 프로젝트 템플릿
+# AISEED Python Project Template
 
-## 소개
+## Introduction
 
-AI 회사인 AISEED는 파이썬 프로젝트가 많습니다.  
-이전과 달리, 연구를 넘어 실제 제품까지 만들기 때문에 유지보수가 필요합니다.
+AISEED, an AI company, handles numerous Python projects.  
+Unlike before, we now go beyond research to develop actual products, which require maintenance.
 
-우리는 앞으로 **코드 작성** 이외에도 **코드 관리**까지 힘써야 한다는 뜻입니다.  
-하지만 프로젝트 유지보수는 쉽지 않습니다.
+This means that in addition to **writing code**, we must also focus on **managing code**.  
+However, maintaining a project is no easy task.
 
-- 코드 컨벤션 통일
-- 프로젝트 구조 설계
-- 테스트 코드 작성
-- 가상 환경 및 의존성 관리
+- Standardizing code conventions
+- Designing project structure
+- Writing test codes
+- Managing virtual environments and dependencies
 - ...
 
-신규 프로젝트를 시작할 때, 혹은 새로운 인력이 프로젝트에 투입됐을 때, 매번 위와 같은 요소들을 설명하고 설정하는 일은 비효율적입니다.
+When starting a new project or onboarding new team members, explaining and setting up all these aspects every time is inefficient.
 
-그래서 전사 차원에서 사용할 일관된 템플릿을 만들었습니다.
+Thus, we've created a consistent template for company-wide use.
 
-## 구성요소
+## Components
 
-템플릿에 사용된 기본적인 구성 요소는 다음과 같습니다.
+The basic components used in this template are as follows:
 
-- [rye](https://rye.astral.sh/guide/) - 프로젝트 및 패키지 관리
-- [ruff](https://docs.astral.sh/ruff/) - 코드 규칙 및 포맷
-- [mypy](https://mypy.readthedocs.io/en/stable/) - 타입 지원
-- [pytest](https://docs.pytest.org/) - 테스트 코드
-- [pre-commit](https://pre-commit.com/) - git commit 작업 시 사전 작업 수행
+- [rye](https://rye.astral.sh/guide/) - Project and package management
+- [ruff](https://docs.astral.sh/ruff/) - Code formatting and rules
+- [mypy](https://mypy.readthedocs.io/en/stable/) - Type checking
+- [pytest](https://docs.pytest.org/) - Test framework
+- [pre-commit](https://pre-commit.com/) - Pre-commit hooks for Git
 
-## 시작하기
+## Getting Started
 
-### 개발 환경 설정
+### Setting Up the Development Environment
 
-- `rye`를 설치해주세요. ([설치 가이드](https://rye.astral.sh/guide/installation/))
+- Install `rye`. ([Installation Guide](https://rye.astral.sh/guide/installation/))
 
-### 프로젝트 설정
+### Project Setup
 
-- Github에서 이 템플릿으로 Repository를 생성한 후 Clone 해주세요.
+- Create a repository from this template on GitHub and clone it.
   ![Github Repository's Use this template](./assets/use-this-template.jpeg)
-- 프로젝트 폴더 안에 있는 `pyproject.toml` 파일의 `name`, `version`, `description`, `authors`를 각자의 프로젝트에 맞게 수정해주세요.
-- 프로젝트 루트 경로에서 다음 스크립트를 실행해주세요.
+- Modify the `name`, `version`, `description`, and `authors` fields in the `pyproject.toml` file according to your project.
+- Run the following scripts in the project's root directory:
   ```bash
   $ rye sync
-  $ pre-commit install # 오류 발생 시 터미널을 다시 시작해보세요
+  $ pre-commit install # If you encounter errors, try restarting the terminal
   ```
 
-### 메인 함수 실행
+### Running the Main Function
 
-`app` 패키지의 main 함수를 실행합니다.
+Execute the main function in the `app` package.
 
 ```bash
 $ rye run app
 ```
 
-터미널에 "Hello, AISEED" 메시지가 출력됐다면 성공입니다!
+If the message "Hello, AISEED" is displayed in the terminal, the setup was successful!
 
-## 프로젝트 지침
+## Project Guidelines
 
-### 의존성 관리
+### Dependency Management
 
-의존성을 다룰 때 역시 `pip` 대신 `rye`를 사용합니다.  
-개발에 필요한 패키지와 제품에 필요한 패키지를 구분해주세요.
+When handling dependencies, use `rye` instead of `pip`.  
+Make sure to differentiate between packages required for development and those for production.
 
 ```bash
 # install production dependency
@@ -76,25 +76,25 @@ $ rye add --dev pytest
 $ rye remove --dev pytest
 ```
 
-### 타입 체크
+### Type Checking
 
-`mypy`로 타입 오류가 발생한 지점을 찾습니다.
+Use `mypy` to identify type errors in your code.
 
 ```bash
 $ rye run type
 ```
 
-### Lint
+### Linting
 
-`ruff`로 코드 컨벤션에 문제가 있는 지점을 찾습니다.
+Check for code convention issues using `ruff`.
 
 ```bash
 $ rye run lint
 ```
 
-### 테스트 실행
+### Running Tests
 
-`pytest`로 `tests/` 폴더에 있는 테스트를 실행합니다.
+Run tests in the `tests/` folder using `pytest`.
 
 ```bash
 # run test
@@ -104,43 +104,43 @@ $ rye run test
 $ rye run test:duration
 ```
 
-**테스트 코드 작성**은 몹시 어렵고 방대한 주제이기 때문에 테스트 코드 작성법에 대해선 아직 다루지 않습니다.  
-대신, 다른 구성원이 쉽게 코드를 파악할 수 있도록 **코드 사용법**을 위주로 작성해주시기 바랍니다.
+**Writing test code** is a vast and challenging topic, so we won't cover it here.  
+Instead, focus on writing **code usage examples** to help others understand the code easily.
 
 ### Git
 
-작업 내역을 `commit`할 때 `pre-commit`을 이용해 코드를 검사합니다.  
-아직은 ruff로 코드 컨벤션만 검사합니다.
+When committing your changes, `pre-commit` will inspect the code.  
+Currently, only code conventions are checked using `ruff`.
 
-\*추후 pytest, mypy까지 수행 예정
+\* Plans to include pytest and mypy checks in the future
 
-[추가 작성 필요]
+[Further details to be added]
 
-## 기타
+## Miscellaneous
 
-### 프로젝트 환경 확인
+### Check Project Environment
 
 ```bash
 $ rye show
 ```
 
-### 실행할 수 있는 스크립트 목록 확인
+### View Available Scripts
 
 ```bash
 $ rye run
 ```
 
-### 스크립트 관리
+### Script Management
 
-`pyproject.toml`의 `[tool.rye.scripts]` 항목에 원하는 스크립트를 추가하거나 수정하시면 됩니다.
+You can add or modify scripts in the `[tool.rye.scripts]` section of the `pyproject.toml` file.
 
-### 파이썬 버전 변경
+### Changing Python Version
 
-1. `.python-version`에서 원하는 버전으로 수정
+1. Modify the version in `.python-version` as needed.
 
-   (타겟 버전은 `pyproject.toml`의 `requires-version`을 수정)
+   (Also, update the `requires-version` field in `pyproject.toml`.)
 
-2. sync 스크립트 실행
+2. Run the sync script.
 
    ```bash
    $ rye sync
