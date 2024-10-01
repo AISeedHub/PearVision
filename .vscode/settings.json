@@ -1,0 +1,17 @@
+{
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.testing.pytestEnabled": true,
+  "files.exclude": {
+    "**/__pycache__": true,
+    ".ruff_cache": true,
+    ".mypy_cache": true,
+    ".pytest_cache": true
+  }
+}

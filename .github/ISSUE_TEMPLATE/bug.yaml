@@ -1,0 +1,35 @@
+name: 'Bug Fix'
+description: Please describe the tasks for the bug fix.
+title: '[BUG] '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Example: "[BUG] Fix Login Bug"
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 🐛 Issue
+      description: Please provide the issue name and number where the bug occurred.
+      placeholder: '[FEATURE] Implement Login <#1>'
+    validations:
+      required: true
+  - type: textarea
+    id: textarea_description
+    attributes:
+      label: 🐝 Bug Occurrence
+      description: Please describe where the bug occurred.
+      placeholder: |
+        1. <Bug Description 1>
+        2. <Bug Description 2>
+      render: ''
+    validations:
+      required: true
+  - type: textarea
+    id: fix-list
+    attributes:
+      label: 📝 To-do
+      description: Please list the tasks required to fix the bug.
+      placeholder: Please write the list.
+    validations:
+      required: true

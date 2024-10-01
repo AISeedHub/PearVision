@@ -1,0 +1,57 @@
+[project]
+name = "aiseed_python_template"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Jinho Jang", email = "verycosy@kakao.com" }
+]
+dependencies = []
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[project.scripts]
+app = "app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pytest>=8.3.1",
+    "ruff>=0.5.4",
+    "mypy>=1.11.0",
+    "pre-commit>=3.7.1",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/app"]
+
+[tool.ruff]
+src = ["src"]
+lint.select = ["B", "E", "F", "I", "UP", "W"]
+lint.ignore = ["B905", "B008", "B904", "F811", "E501"]
+lint.fixable = ["B", "F", "I", "UP"]
+lint.unfixable = []
+
+[tool.mypy]
+files = "src"
+show_error_context = true
+show_column_numbers = true
+show_error_codes = true
+pretty = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+addopts = ["--import-mode=importlib"]
+
+[tool.rye.scripts]
+"test" = "pytest"
+"test:duration" = "pytest --durations=0"
+"lint" = "ruff check"
+"type" = "mypy"

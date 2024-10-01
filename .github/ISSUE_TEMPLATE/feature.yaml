@@ -1,0 +1,32 @@
+name: 'New Feature'
+description: Please describe the tasks for the new feature.
+title: '[FEATURE] '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Example: "[FEATURE] Implement Login"
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 🛠 Issue
+      description: Please describe what feature you are implementing.
+      placeholder: Please write a description.
+    validations:
+      required: true
+  - type: textarea
+    id: feature-list
+    attributes:
+      label: 📝 To-do
+      description: Please list the tasks required for the feature.
+      placeholder: Please write the list.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 🔍 Approach
+      description: Please describe the methods or approach you are considering.
+      placeholder: Please write your explanation.
+    validations:
+      required: true
