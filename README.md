@@ -1,5 +1,12 @@
 # AISEED Python Project Template
 
+# 2 options:
+- Using Smartfarm Code: latency less than 1s
+- Using `ffmpeg`: latency ~1 sec
+==> Need to be same network
+
+
+
 ## Introduction
 
 AISEED, an AI company, handles numerous Python projects.  
