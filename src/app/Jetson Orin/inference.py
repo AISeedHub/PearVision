@@ -20,10 +20,10 @@ class PearDetectionModel:
     def inference(self, img):
         pred = self.detect(img)
         labels = [self.names[int(cat)] for cat in pred.cls]
-        if "normal_pear_bbox" in labels or len(labels) == 0:
-            return 1
+        if any([label != "normal_pear_box" for label in labels]):
+            return 0, pred.xyxy
         else:
-            return 0
+            return 1, pred.xyxy
 
     def _preporcess(self, img):
         pass

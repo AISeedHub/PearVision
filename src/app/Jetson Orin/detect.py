@@ -106,10 +106,19 @@ def main():
             h, w, ch = rgb_image.shape
             #logging.debug(f"Frame processed. Size: {w}x{h}")
 
-            print(model.inference(rgb_image))
+            cls, bboxes = model.inference(rgb_image)
+            print(cls)
 
             # Display the frame
-            cv2.imshow('Camera Feed', rgb_image)
+            for box in bboxes:
+                cv2.rectangle(
+                    frame,
+                    (int(box[0]), int(box[1])),
+                    (int(box[2]), int(box[3])),
+                    (0, 255, 0),
+                    2,
+                )
+            cv2.imshow('Camera Feed', frame)
 
             # Break the loop if 'q' is pressed
             if cv2.waitKey(1) & 0xFF == ord('q'):
