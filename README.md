@@ -51,6 +51,7 @@ sh run.sh
 
 ### Notes: There are 2 solutions to stream the video from Raspberry Pi to Jetson Orin:
 - Using Flask Web Code: latency less than 1s
+  - Change the resolution of the camera in "Raspberry Pi" to be lower to reduce the latency
 - Using `ffmpeg`: latency ~1 sec
 
 
