@@ -1,0 +1,1 @@
+python inference.py --config yolo_config.yml
