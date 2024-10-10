@@ -1,6 +1,12 @@
 # Pear Detection System
 
-## I. Components
+## 0. Requirements
+
+| **Item 1**                                                                                   | **Item 2** |
+|----------------------------------------------------------------------------------------------|--------|
+| Raspberry Pi with a camera to capture the image and send to Jetson Orin real-time (wireless) | Jetson Orin as a controller to execute Deep Learning model |
+| ![item1.png](imgs/item1.png)                                                                 | ![item2.png](imgs/item2.png) |
+## I. Preparation
 ### 1. Jetson Orin 
 - As a controller to execute Deep Learning model
 - Required:
@@ -16,7 +22,7 @@
   - Camera
   - `raspberry_requirements.txt`
 
-### 3. Jetson Nano (Optional)
+### 3. Jetson Nano 
 - Extending Edge Computing to detect the Pear (camera is attached to Jetson Nano)
 - Required:
   - Camera
@@ -44,6 +50,12 @@ sh run.sh
 #### 2.2. Run
 All the following commands are executed in the `src/app/Jetson Orin` folder
 - Config the IP address of Raspberry Pi in `config.py`
+- Install the requirements
+```bash 
+pip install -r requirements.txt
+```
+- Clone the Deep Learning model weights from [here](https://github.com/AISeedHub/pretrained-models/releases) and save it in `src/app/Jetson Orin/weights`
+
 - Start the Vision Pear Detection System
 ```bash
 sh run.sh
@@ -55,7 +67,7 @@ sh run.sh
 - Using `ffmpeg`: latency ~1 sec
 
 
-## III. Test Cases
+## III. Test Case
 Check out the `test` folder for testing the system
 
 ## @Copyright (c) 2024, AISEED. All rights reserved.
