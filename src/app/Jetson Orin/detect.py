@@ -6,12 +6,15 @@ import threading
 import time
 import logging
 import yaml
+import queue
 
 from inference import PearDetectionModel
 from config import *
 
+import serial
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class VideoStream:
     def __init__(self, url):
@@ -46,14 +49,14 @@ class VideoStream:
                     a = bytes_buffer.find(b'\xff\xd8')
                     b = bytes_buffer.find(b'\xff\xd9')
                     if a != -1 and b != -1:
-                        jpg = bytes_buffer[a:b+2]
-                        bytes_buffer = bytes_buffer[b+2:]
+                        jpg = bytes_buffer[a:b + 2]
+                        bytes_buffer = bytes_buffer[b + 2:]
                         frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
                         if frame is not None:
                             with self.lock:
                                 self.frame = frame
                                 self.last_frame_time = time.time()
-                            #logging.debug("Frame received and processed")
+                            # logging.debug("Frame received and processed")
                         else:
                             logging.warning("Received empty frame")
         except requests.RequestException as e:
@@ -77,16 +80,53 @@ class VideoStream:
             self.thread.join()
         logging.info("Video stream stopped")
 
+
 def load_model(config_file):
     with open(config_file) as f:
         config = yaml.safe_load(f)
         model = PearDetectionModel(config)
         print("Load model sucessfully!")
-        print("-"*10)
+        print("-" * 10)
         return model
     return None
 
-def main():
+
+def arduino_worker(arduino, command_queue):
+    last_command_time = time.time()
+    try:
+        while True:
+            try:
+                command = command_queue.get(timeout=5)  # Wait for a command for up to 5 seconds
+                if command is None:
+                    break
+                current_time = time.time()
+                if current_time - last_command_time >= 5:  # Check if 5 seconds have passed
+                    on_count = 0
+                    off_count = 0
+                    # Collect all commands in the queue
+                    while not command_queue.empty():
+                        command = command_queue.get()
+                        if command == 'ON\n':
+                            on_count += 1
+                        elif command == 'OFF\n':
+                            off_count += 1
+                    if on_count > off_count:
+                        arduino.write(command.encode())
+                        time.sleep(1)  # Wait for 1 second
+                        arduino.write(b'OFF\n')
+                        last_command_time = current_time
+            except queue.Empty:
+                # Reset the queue if no command is received within 5 seconds
+                with command_queue.mutex:
+                    command_queue.queue.clear()
+    except KeyboardInterrupt:
+        print("Program stopped")
+    finally:
+        arduino.write(b'OFF\n')
+        arduino.close()
+
+
+def main(command_queue):
     # load model
     model = load_model(YOLO_CONFIG_FILE)
     url = f"http://{RASPBERRY_IP}:5000/api/video_feed/{CAMERA_ORDER}"  # Replace with your server's URL
@@ -104,10 +144,15 @@ def main():
             # Process frame
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, ch = rgb_image.shape
-            #logging.debug(f"Frame processed. Size: {w}x{h}")
+            # logging.debug(f"Frame processed. Size: {w}x{h}")
 
             cls, bboxes = model.inference(rgb_image)
             print(cls)
+
+            if cls == 1:  # defeat pear
+                command_queue.put('ON\n')  # Send ON command to Arduino
+            else:
+                command_queue.put('OFF\n')
 
             # Display the frame
             for box in bboxes:
@@ -129,5 +174,12 @@ def main():
         video_stream.stop()
         cv2.destroyAllWindows()
 
+
 if __name__ == "__main__":
-    main()
+    arduino = serial.Serial(arduino_serial_port, 9600)
+    command_queue = queue.Queue()
+    arduino_thread = threading.Thread(target=arduino_worker, args=(arduino, command_queue))
+    arduino_thread.start()
+    main(command_queue)
+    command_queue.put(None)  # Signal the Arduino thread to exit
+    arduino_thread.join()
