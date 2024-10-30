@@ -75,6 +75,7 @@ class ArduinoController:
         self.command_count = {'ON': 0, 'OFF': 0}
         self.last_status_time = time.time()
         self.status_interval = 60  # Print status every 60 seconds
+        self.time_delay = 3  # Delay time to send command to Arduino
 
     def connect(self) -> bool:
         """Establish connection with Arduino"""
@@ -105,14 +106,6 @@ class ArduinoController:
             self.logger.log(f"Error sending command: {e}", "ERROR")
             return False
 
-    def print_status(self):
-        """Print periodic status updates"""
-        current_time = time.time()
-        if current_time - self.last_status_time >= self.status_interval:
-            self.logger.log(f"Status - ON commands: {self.command_count['ON']}, "
-                            f"OFF commands: {self.command_count['OFF']}")
-            self.last_status_time = current_time
-
     def process_commands(self, command_queue: queue.Queue):
         """Main command processing loop"""
         if not self.connect():
@@ -125,7 +118,8 @@ class ArduinoController:
                     commands = []
 
                     try:
-                        while time.time() - self.last_command_time < 5:
+                        update_queue_time = time.time()
+                        while time.time() - update_queue_time < self.time_delay:
                             cmd = command_queue.get_nowait()
                             if cmd is None:  # Exit signal
                                 self.running = False
@@ -138,8 +132,7 @@ class ArduinoController:
                     if not self.running:
                         break
 
-                    current_time = time.time()
-                    if commands and (current_time - self.last_command_time >= 5):
+                    if commands and (time.time() - self.last_command_time >= self.time_delay):
                         # Count ON vs OFF commands
                         on_count = commands.count('ON\n')
                         off_count = commands.count('OFF\n')
@@ -148,9 +141,9 @@ class ArduinoController:
                             if self.send_command('ON\n'):
                                 time.sleep(1)
                                 self.send_command('OFF\n')
-                        self.last_command_time = current_time
+                        self.last_command_time = time.time()
 
-                    self.print_status()
+                    update_queue_time = time.time()
 
                 except Exception as e:
                     self.logger.log(f"Command processing error: {e}", "ERROR")
