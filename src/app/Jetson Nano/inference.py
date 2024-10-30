@@ -55,6 +55,8 @@ class PearDetectionModel:
     def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
         """Run inference and return result and boxes"""
         pred = self.detect(img)
+        pred = pred[pred.conf > 0.8]
+        pred = (pred if any([label == "burn_bbox" for label in pred.cls]) else pred[pred.conf > 0.9])
         labels = [self.names[int(cat)] for cat in pred.cls]
         if any([label != "normal_pear_box" for label in labels]):
             return 1, pred.xyxy
@@ -121,10 +123,9 @@ class ArduinoController:
                 try:
                     # Collect commands for 5 seconds
                     commands = []
-                    command_collection_start = time.time()
 
                     try:
-                        while True:
+                        while time.time() - self.last_command_time < 5:
                             cmd = command_queue.get_nowait()
                             if cmd is None:  # Exit signal
                                 self.running = False
@@ -132,7 +133,7 @@ class ArduinoController:
                             commands.append(cmd)
                     except queue.Empty:
                         time.sleep(0.1)  # Short sleep to prevent busy waiting
-                        continue
+                        pass
 
                     if not self.running:
                         break
@@ -235,8 +236,7 @@ def main(config_path: str):
                 break
 
             # Run inference
-            img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            result, boxes = model.inference(img)
+            result, boxes = model.inference(frame)
 
             # Send command
             command_queue.put('ON\n' if result == 1 else 'OFF\n')
