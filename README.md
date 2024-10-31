@@ -6,6 +6,12 @@
 |----------------------------------------------------------------------------------------------|--------|
 | Raspberry Pi with a camera to capture the image and send to Jetson Orin real-time (wireless) | Jetson Orin as a controller to execute Deep Learning model |
 | ![item1.png](imgs/item1.png)                                                                 | ![item2.png](imgs/item2.png) |
+
+#### Pear Detection System Thread Timeline and Command Flow
+
+![](imgs/System.png)
+
+
 ## I. Preparation
 ### 1. Jetson Orin 
 - As a controller to execute Deep Learning model
@@ -66,8 +72,10 @@ sh run.sh
   - Change the resolution of the camera in "Raspberry Pi" to be lower to reduce the latency
 - Using `ffmpeg`: latency ~1 sec
 
+## III. Sequence diagram
+![diagram](https://github.com/user-attachments/assets/0fd3e97b-3c78-4761-80df-a4b0fd24e5fc)<svg aria-roledescription="sequence" role="graphics-document document" style="max-width: 1322px;" xmlns="http://www.w3.org/2000/svg" width="100%" id="mermaid-2acd3684-f038-4a3b-a2d0-5429c229fc1c">
 
-## III. Test Case
+## IV. Test Case
 Check out the `test` folder for testing the system
 
 ## @Copyright (c) 2024, AISEED. All rights reserved.
