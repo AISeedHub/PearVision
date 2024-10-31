@@ -73,7 +73,9 @@ sh run.sh
 - Using `ffmpeg`: latency ~1 sec
 
 ## III. Sequence diagram
-![diagram](https://github.com/user-attachments/assets/0fd3e97b-3c78-4761-80df-a4b0fd24e5fc)<svg aria-roledescription="sequence" role="graphics-document document" style="max-width: 1322px;" xmlns="http://www.w3.org/2000/svg" width="100%" id="mermaid-2acd3684-f038-4a3b-a2d0-5429c229fc1c">
+
+![](imgs/diagram.jpg)
+
 
 ## IV. Test Case
 Check out the `test` folder for testing the system
