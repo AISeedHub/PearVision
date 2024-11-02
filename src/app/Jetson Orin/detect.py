@@ -45,26 +45,24 @@ class VideoStream:
 
                 self.logger.log("Connected to stream successfully")
                 bytes_buffer = bytes()
-                while self._run_flag:  # Check flag in loop
-                    try:
-                        chunk = next(r.iter_content(chunk_size=1024))
-                        bytes_buffer += chunk
-                        a = bytes_buffer.find(b'\xff\xd8')
-                        b = bytes_buffer.find(b'\xff\xd9')
-                        if a != -1 and b != -1:
-                            jpg = bytes_buffer[a:b + 2]
-                            bytes_buffer = bytes_buffer[b + 2:]
-                            frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
-                            if frame is not None:
-                                with self.lock:
-                                    self.frame = frame
-                                    self.last_frame_time = time.time()
-                            else:
-                                self.logger.log("Received empty frame", "WARNING")
-                    except StopIteration:
-                        if self._run_flag:  # Only log if not stopping intentionally
-                            self.logger.log("Stream ended unexpectedly", "ERROR")
+
+                for chunk in r.iter_content(chunk_size=1024):
+                    if not self._run_flag:
                         break
+                    bytes_buffer += chunk
+                    a = bytes_buffer.find(b'\xff\xd8')
+                    b = bytes_buffer.find(b'\xff\xd9')
+                    if a != -1 and b != -1:
+                        jpg = bytes_buffer[a:b + 2]
+                        bytes_buffer = bytes_buffer[b + 2:]
+                        frame = cv2.imdecode(np.frombuffer(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+                        if frame is not None:
+                            with self.lock:
+                                self.frame = frame
+                                self.last_frame_time = time.time()
+                            # logging.debug("Frame received and processed")
+                        else:
+                            self.logger.log("Received empty frame", "WARNING")
         except requests.RequestException as e:
             self.logger.log(f"Network error: {str(e)}", "ERROR")
         except Exception as e:

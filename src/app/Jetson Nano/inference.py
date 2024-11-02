@@ -55,10 +55,16 @@ class PearDetectionModel:
     def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
         """Run inference and return result and boxes"""
         pred = self.detect(img)
-        pred = pred[pred.conf > 0.8]
-        pred = (pred if any([label == "burn_bbox" for label in pred.cls]) else pred[pred.conf > 0.9])
+
+        pred = (
+            pred[pred.conf > 0.9]
+            if all([pred != "burn_bbox" for pred in self.names])
+            else pred[pred.conf > 0.7]
+        )
         labels = [self.names[int(cat)] for cat in pred.cls]
-        if any([label != "normal_pear_box" for label in labels]):
+
+        # if any classes rather than "normal_pear_box" is detected, return 0 else return 1
+        if any([label == "burn_bbox" for label in labels]):
             return 1, pred.xyxy
         else:
             return 0, pred.xyxy
@@ -169,6 +175,9 @@ class VideoCapture:
     def __init__(self, camera_id: int = 0):
         self.logger = Logger("Camera")
         self.cap = cv2.VideoCapture(camera_id)
+        # Set the resolution to 640x480
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.frame_count = 0
         self.start_time = time.time()
 

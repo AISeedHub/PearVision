@@ -46,10 +46,16 @@ class PearDetectionModel:
 
     def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
         pred = self.detect(img)
-        pred = pred[pred.conf > 0.8]
-        pred = (pred if any([label == "burn_bbox" for label in pred.cls]) else pred[pred.conf > 0.9])
+
+        pred = (
+            pred[pred.conf > 0.9]
+            if all([pred != "burn_bbox" for pred in self.names])
+            else pred[pred.conf > 0.7]
+        )
         labels = [self.names[int(cat)] for cat in pred.cls]
-        if any([label != "normal_pear_box" for label in labels]):
+
+        # if any classes rather than "normal_pear_box" is detected, return 0 else return 1
+        if any([label == "burn_bbox" for label in labels]):
             return 1, pred.xyxy
         else:
             return 0, pred.xyxy
@@ -72,5 +78,5 @@ if __name__ == "__main__":
         if img is None:
             print(f"Error: Could not read image from {args.img_path}")
             break
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         print(model.inference(img))
