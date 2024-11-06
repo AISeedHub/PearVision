@@ -1,1 +1,4 @@
 ultralytics
+PySerial
+PyYAML
+opencv-python
