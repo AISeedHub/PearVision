@@ -1,43 +1,41 @@
 # Pear Detection System
+PearVision is a real-time video processing and hardware control system designed for detecting Pear objects 
+using a Deep Learning model. 
+The system streams video from a specified URL, processes the frames to detect objects, 
+and communicates with an **Arduino** device to perform actions based on the detection results.
 
-## 0. Requirements
+## Features
+
+- Real-time video streaming and processing (Item 1).
+- Object detection using a Deep Learning model, [checkout here](https://github.com/AISeedHub/pear-detection).
+- Communication with an Arduino device for hardware control.
+
+## Requirements
 
 | **Item 1**                                                                                   | **Item 2** |
 |----------------------------------------------------------------------------------------------|--------|
 | Raspberry Pi with a camera to capture the image and send to Jetson Orin real-time (wireless) | Jetson Orin as a controller to execute Deep Learning model |
 | ![item1.png](imgs/item1.png)                                                                 | ![item2.png](imgs/item2.png) |
 
+## Technical Overview
+
+| ![wool_1248534.png](imgs/icons/wool_1248534.png) | ![video](imgs/icons/video-player_12549893.png) | ![happy_12466122.png](imgs/icons/happy_12466122.png) | ![icons8-source-code-100.png](imgs/icons/icons8-source-code-100.png) | ![arduino_official_logo_icon_167833.png](imgs/icons/arduino_official_logo_icon_167833.png) | ![icons8-network-gateway-100.png](imgs/icons/icons8-network-gateway-100.png) | ![pocoo_flask_logo_icon_168045.png](imgs/icons/pocoo_flask_logo_icon_168045.png) |
+|--------------------------------------------------|-----------------------------------------------|------------------------------------------------------|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| **Multithreading**                               | **Video Streaming**                           | **[Deep Learning](https://github.com/AISeedHub/pear-detection)**                                    | **Edge Computing**                                                   | **Hardware Communication**                                                                 | **Network Configuration**                                                    | Flask                                                                            |
+
+
 #### Pear Detection System Thread Timeline and Command Flow
 
 ![](imgs/System.png)
 
 
-## I. Preparation
-### 1. Jetson Orin 
-- As a controller to execute Deep Learning model
-- Required:
-  - Jetpack 4.6 or later
-  - Pytorch CUDA
-  - OpenCV
-  - ffmpeg
-- This setup can reference from [here](https://github.com/synapsespectrum/Setting/tree/master/Jetson)
+## I. Getting Started
+1. Clone the repository: git clone https://github.com/AISeedHub/PearVision.git
+2. Install the required dependencies: pip install -r requirements.txt
+3. Set up the Raspberry Pi and Jetson Orin devices according to the requirements
+4. Execute the command `sh run.sh` in each device to start the system
 
-### 2. Raspberry Pi
-- Within a camera to capture the image and send to Jetson Orin real-time
-- Required:
-  - Camera
-  - `raspberry_requirements.txt`
-
-### 3. Jetson Nano 
-- Extending Edge Computing to detect the Pear (camera is attached to Jetson Nano)
-- Required:
-  - Camera
-  - Jetpack 4.6 or later
-  - Pytorch CUDA
-  - OpenCV
-
-## II. How to run
-**Note: Setup all devices in the same network**
+## II. Usage
 ### 1. Raspberry Pi
 #### 1.1. Setup
 - Install `raspberry_requirements.txt`
@@ -67,10 +65,16 @@ pip install -r requirements.txt
 sh run.sh
 ```
 
-### Notes: There are 2 solutions to stream the video from Raspberry Pi to Jetson Orin:
+#### Notes: There are 2 solutions to stream the video from Raspberry Pi to Jetson Orin:
 - Using Flask Web Code: latency less than 1s
   - Change the resolution of the camera in "Raspberry Pi" to be lower to reduce the latency
 - Using `ffmpeg`: latency ~1 sec
+
+### Troubleshooting
+- Check the system logs for errors
+- Verify the network connection between the Raspberry Pi and Jetson Orin devices
+- Ensure the Arduino device is properly configured and connected
+
 
 ## III. Sequence diagram
 
@@ -80,4 +84,5 @@ sh run.sh
 ## IV. Test Case
 Check out the `test` folder for testing the system
 
-## @Copyright (c) 2024, AISEED. All rights reserved.
+## License
+@Copyright (c) 2024, AISEED. All rights reserved.
