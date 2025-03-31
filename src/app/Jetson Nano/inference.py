@@ -56,18 +56,14 @@ class PearDetectionModel:
         """Run inference and return result and boxes"""
         pred = self.detect(img)
 
-        pred = (
-            pred[pred.conf > 0.9]
-            if all([pred != "burn_bbox" for pred in self.names])
-            else pred[pred.conf > 0.7]
-        )
+        pred = pred[pred.conf > 0.7]
         labels = [self.names[int(cat)] for cat in pred.cls]
 
         # if any classes rather than "normal_pear_box" is detected, return 0 else return 1
-        if any([label == "burn_bbox" for label in labels]):
-            return 1, pred.xyxy
+        if any([label == "defect" for label in labels]):
+            return 1, pred.xyxy, pred.cls
         else:
-            return 0, pred.xyxy
+            return 0, pred.xyxy, pred.cls
 
 
 class ArduinoController:
@@ -238,15 +234,18 @@ def main(config_path: str):
                 break
 
             # Run inference
-            result, boxes = model.inference(frame)
+            result, boxes, cls = model.inference(frame)
 
             # Send command
             command_queue.put('ON\n' if result == 1 else 'OFF\n')
 
             # Draw results
-            for box in boxes:
+            for box, cl in zip(boxes, cls):
                 x1, y1, x2, y2 = map(int, box[:4])
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                if cl == 0:
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                else:
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
             cv2.putText(frame,
                         f"Result: {'Normal' if result == 0 else 'Abnormal'}",
