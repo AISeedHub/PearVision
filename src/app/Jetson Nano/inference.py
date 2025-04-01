@@ -43,27 +43,55 @@ class PearDetectionModel:
             self.logger.log(f"Error loading model: {e}", "ERROR")
             raise
 
-    def detect(self, img: np.ndarray) -> np.ndarray:
+    def detect(self, img: np.ndarray, conf: float) -> np.ndarray:
         """Run detection on image"""
         try:
             results = self.model.predict(img)
-            return results[0].boxes.cpu().numpy()
+            # Extract bounding boxes, classes, and scores
+            bboxes = results[0].boxes.xyxy.cpu().numpy()
+            classes = results[0].boxes.cls.cpu().numpy()
+            scores = results[0].boxes.conf.cpu().numpy()
+            # Filter results based on confidence threshold
+            mask = scores >= conf
+            bboxes = bboxes[mask]
+            classes = classes[mask]
+
+            return np.hstack((bboxes, classes[:, None]))
         except Exception as e:
             self.logger.log(f"Detection error: {e}", "ERROR")
             return np.array([])
+        
+    def postprocess(self, pred: np.ndarray) -> np.ndarray:
+        """Post-process the predictions"""
+        # ensure that defect boxes are inside the fruit boxes
+        # extract the defect boxes and fruit boxes
+        defect_boxes = pred[pred[:, 4] == 1][:, :4]
+        fruit_boxes = pred[pred[:, 4] == 0][:, :4]
+        # check if defect boxes are inside fruit boxes
+        # if the defect box is not inside any fruit box, remove it
+        for defect_box in defect_boxes:
+            x1, y1, x2, y2 = defect_box
+            inside = False
+            for fruit_box in fruit_boxes:
+                fx1, fy1, fx2, fy2 = fruit_box
+                if (x1 >= fx1 and y1 >= fy1 and x2 <= fx2 and y2 <= fy2):
+                    inside = True
+                    break
+            if not inside:
+                pred = pred[pred[:, :4] != defect_box].reshape(-1, 5)
+        return pred
 
-    def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
+    def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray, np.ndarray]:
         """Run inference and return result and boxes"""
-        pred = self.detect(img)
-
-        pred = pred[pred.conf > 0.7]
-        labels = [self.names[int(cat)] for cat in pred.cls]
+        pred = self.detect(img, conf=0.7)
+        # pred = self.postprocess(pred)
+        labels = [self.names[int(cat)] for cat in pred[:, 4]]
 
         # if any classes rather than "normal_pear_box" is detected, return 0 else return 1
         if any([label == "defect" for label in labels]):
-            return 1, pred.xyxy, pred.cls
+            return 1, pred[:, 0:4], pred[:, 4]
         else:
-            return 0, pred.xyxy, pred.cls
+            return 0, pred[:, 0:4], pred[:, 4]
 
 
 class ArduinoController:
@@ -235,7 +263,6 @@ def main(config_path: str):
 
             # Run inference
             result, boxes, cls = model.inference(frame)
-
             # Send command
             command_queue.put('ON\n' if result == 1 else 'OFF\n')
 
