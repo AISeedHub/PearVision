@@ -199,9 +199,9 @@ class VideoCapture:
     def __init__(self, camera_id: int = 0):
         self.logger = Logger("Camera")
         self.cap = cv2.VideoCapture(camera_id)
-        # Set the resolution to 640x480
+        # Set the resolution to 2560 x 1440
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1024)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.frame_count = 0
         self.start_time = time.time()
 
