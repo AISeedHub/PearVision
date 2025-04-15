@@ -70,8 +70,22 @@ class PearDetectionModel:
 
     def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
         """Run inference and return result and boxes"""
-        pred = self.detect(img, conf=0.5)
-        # pred = self.postprocess(pred)
+        pred = self.detect(img, conf=0.6)
+        
+        # check the fruit boxes appeared in the image, if yes, crop the fruit boxes and run prediction on the cropped image
+        for box in pred:
+            x1, y1, x2, y2 = map(int, box[:4])
+            x1, y1, x2, y2 = x1 - 10, y1 - 10, x2 + 10, y2 + 10  # Add padding
+            if box[4] == 0:  # Assuming class 0 is the fruit class
+                fruit_box = img[y1:y2, x1:x2]
+                fruit_pred = self.detect(fruit_box, conf=0.6)
+                # Check if any defect is detected in the fruit box, if yes, recalibrate the defect boxes
+                if len(fruit_pred) > 0:
+                    defect_boxes = fruit_pred[fruit_pred[:, 4] == 1]
+                    if len(defect_boxes) > 0:
+                        defect_boxes[:, :4] += np.array([x1, y1, x1, y1])
+                        pred = np.vstack((pred, defect_boxes))  # Append defect boxes to the original prediction
+
         labels = [self.names[int(cat)] for cat in pred[:, 4]]
 
         if any([label == "defect" for label in labels]):
