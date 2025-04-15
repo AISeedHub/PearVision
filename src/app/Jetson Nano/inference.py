@@ -60,38 +60,24 @@ class PearDetectionModel:
         except Exception as e:
             self.logger.log(f"Detection error: {e}", "ERROR")
             return np.array([])
-        
+
     def postprocess(self, pred: np.ndarray) -> np.ndarray:
         """Post-process the predictions"""
         # ensure that defect boxes are inside the fruit boxes
         # extract the defect boxes and fruit boxes
-        defect_boxes = pred[pred[:, 4] == 1][:, :4]
-        fruit_boxes = pred[pred[:, 4] == 0][:, :4]
-        # check if defect boxes are inside fruit boxes
-        # if the defect box is not inside any fruit box, remove it
-        for defect_box in defect_boxes:
-            x1, y1, x2, y2 = defect_box
-            inside = False
-            for fruit_box in fruit_boxes:
-                fx1, fy1, fx2, fy2 = fruit_box
-                if (x1 >= fx1 and y1 >= fy1 and x2 <= fx2 and y2 <= fy2):
-                    inside = True
-                    break
-            if not inside:
-                pred = pred[pred[:, :4] != defect_box].reshape(-1, 5)
+
         return pred
 
-    def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray, np.ndarray]:
+    def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
         """Run inference and return result and boxes"""
-        pred = self.detect(img, conf=0.7)
+        pred = self.detect(img, conf=0.5)
         # pred = self.postprocess(pred)
         labels = [self.names[int(cat)] for cat in pred[:, 4]]
 
-        # if any classes rather than "normal_pear_box" is detected, return 0 else return 1
         if any([label == "defect" for label in labels]):
-            return 1, pred[:, 0:4], pred[:, 4]
+            return 1, pred
         else:
-            return 0, pred[:, 0:4], pred[:, 4]
+            return 0, pred
 
 
 class ArduinoController:
@@ -200,8 +186,8 @@ class VideoCapture:
         self.logger = Logger("Camera")
         self.cap = cv2.VideoCapture(camera_id)
         # Set the resolution to 640x480
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1024)
         self.frame_count = 0
         self.start_time = time.time()
 
@@ -262,21 +248,26 @@ def main(config_path: str):
                 break
 
             # Run inference
-            result, boxes, cls = model.inference(frame)
+            result, boxes = model.inference(frame)
             # Send command
             command_queue.put('ON\n' if result == 1 else 'OFF\n')
 
-            # Draw results
-            for box, cl in zip(boxes, cls):
-                x1, y1, x2, y2 = map(int, box[:4])
-                if cl == 0:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                else:
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            if len(boxes) > 0:
 
-            cv2.putText(frame,
-                        f"Result: {'Normal' if result == 0 else 'Abnormal'}",
-                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                cv2.putText(frame,
+                            f"Result: {'Normal' if result == 0 else 'Abnormal'}",
+                            (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                # Draw results
+                for box in boxes:
+                    cl = int(box[4])
+                    x1, y1, x2, y2 = map(int, box[:4])
+                    if cl == 0:
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    else:
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)
+
+            else:
+                cv2.putText(frame, "No detection", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
             cv2.imshow('Pear Detection', frame)
 
