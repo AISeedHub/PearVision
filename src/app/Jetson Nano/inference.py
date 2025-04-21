@@ -70,7 +70,7 @@ class PearDetectionModel:
 
     def inference(self, img: np.ndarray) -> Tuple[int, np.ndarray]:
         """Run inference and return result and boxes"""
-        pred = self.detect(img, conf=0.6)
+        pred = self.detect(img, conf=0.8)
         
         # check the fruit boxes appeared in the image, if yes, crop the fruit boxes and run prediction on the cropped image
         for box in pred:
